@@ -230,19 +230,21 @@ app.get("/api/fetch-external-data", async (req, res) => {
 
     // Map rows cleanly to AlsintanReportRow structures
     const parsedData = dataRows.map((rowArr, index) => {
-      // Structure: ["Timestamp","Operator Alsintan ","Jenis Alsintan ","Nama penyewa/kelompok tani","Lokasi ","Luas Lahan (Ha)","Tanggal penggunaan","Durasi(jam kerja)","Biaya sewa","Dokumentasi  Kegiatan", "Jumlah Bahan Bakar (L)", "Dokumen Pendukung Kegiatan "]
+      // Structure: ["Timestamp", "Nama Operator", "Jenis Alsintan", "Nama Penyewa", "Luas Lahan (Ha)", "Jumlah Bahan Bakar (L)", "Lokasi", "Durasi Kerja (Hari)", "Tanggal Kegiatan", "Dokumentasi Pendukung (Foto)", "Keterangan (Kendala di lapangan)", "Biaya Sewa (Rp)"]
       const rawTimestamp = rowArr[0] || "";
       const rawOperator = rowArr[1] || "Operator Umum";
       const rawAlsintan = rowArr[2] || "Yanmar TR2";
       const farmer = rowArr[3] || "";
-      const lokasi = rowArr[4] || "Amanuban Selatan";
-      const rawLuas = rowArr[5] || "";
-      const usageDate = rowArr[6] || "";
+      const rawLuas = rowArr[4] || "";
+      const rawBBM = rowArr[5] || "";
+      const lokasi = rowArr[6] || "Amanuban Selatan";
       const durasi = rowArr[7] || "";
-      const biayaSewa = rowArr[8] || "";
+      const usageDate = rowArr[8] || "";
       const dokumentasiKegiatan = rowArr[9] || "";
-      const rawBBM = rowArr[10] || "";
-      const dokumenPendukung = rowArr[11] || "";
+      const keterangan = rowArr[10] || "";
+      const biayaSewa = rowArr[11] || "";
+      
+      const dokumenPendukung = keterangan;
       
       // 1. Process operator name
       const operator = rawOperator.replace(/\s*\(TR4\)\s*/i, "").trim();

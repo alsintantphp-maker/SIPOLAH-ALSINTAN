@@ -21,7 +21,13 @@ export default function App() {
     const saved = localStorage.getItem("tts_alsintan_reports");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Force flush if it contains the old dummy data operator names
+        if (parsed.length > 0 && parsed.some((r: any) => ["Marthen Selan", "Yosep Nome", "Doni Banunaek"].includes(r.operator))) {
+          console.log("Ditemukan data dummy versi lama. Membersihkan cache...");
+          return initialReports;
+        }
+        return parsed;
       } catch (e) {
         console.error("Gagal membaca cache laporan lokal:", e);
       }

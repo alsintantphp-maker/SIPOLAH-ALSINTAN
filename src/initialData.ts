@@ -4,7 +4,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-1",
     timestamp: "2026-06-01 07:15",
-    operator: "Marthen Selan",
+    operator: "BAHRUN KEI ALFAZARI, ST",
     alsintan: "Traktor Roda 4 (John Deere)",
     kecamatan: "Amanuban Selatan",
     desa: "Bena",
@@ -16,7 +16,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-2",
     timestamp: "2026-06-02 09:30",
-    operator: "Yosep Nome",
+    operator: "YARIT H. PUNUF, ST",
     alsintan: "Traktor Roda 2 (Yanmar)",
     kecamatan: "Mollo Utara",
     desa: "Tunua",
@@ -28,7 +28,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-3",
     timestamp: "2026-06-03 14:00",
-    operator: "Doni Banunaek",
+    operator: "YUFEN TAKESAN",
     alsintan: "Mesin Pompa Air 3 Inch",
     kecamatan: "Batu Putih",
     desa: "Boentuka",
@@ -40,7 +40,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-4",
     timestamp: "2026-06-04 08:45",
-    operator: "Petrus Kase",
+    operator: "BAHRUN KEI ALFAZARI, ST",
     alsintan: "Traktor Roda 4 (John Deere)",
     kecamatan: "Soe",
     desa: "Kufe",
@@ -52,7 +52,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-5",
     timestamp: "2026-06-05 10:20",
-    operator: "Mathias Tanu",
+    operator: "YARIT H. PUNUF, ST",
     alsintan: "Cultivator",
     kecamatan: "Mollo Selatan",
     desa: "Siso",
@@ -64,7 +64,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-6",
     timestamp: "2026-06-06 11:10",
-    operator: "Simson Lakapu",
+    operator: "YUFEN TAKESAN",
     alsintan: "Traktor Roda 2 (Yanmar)",
     kecamatan: "Amanuban Barat",
     desa: "Tubuhue",
@@ -76,7 +76,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-7",
     timestamp: "2026-06-07 16:35",
-    operator: "Emanuel Bia",
+    operator: "BAHRUN KEI ALFAZARI, ST",
     alsintan: "Mesin Pompa Air 3 Inch",
     kecamatan: "Kie",
     desa: "Fatuulan",
@@ -88,7 +88,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-8",
     timestamp: "2026-06-08 07:05",
-    operator: "Marthen Selan",
+    operator: "YARIT H. PUNUF, ST",
     alsintan: "Traktor Roda 4 (John Deere)",
     kecamatan: "Amanuban Selatan",
     desa: "Oebelo",
@@ -100,7 +100,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-9",
     timestamp: "2026-06-08 13:20",
-    operator: "Soleman Neno",
+    operator: "YUFEN TAKESAN",
     alsintan: "Combine Harvester",
     kecamatan: "Amanuban Selatan",
     desa: "Bena",
@@ -112,7 +112,7 @@ export const initialReports: AlsintanReportRow[] = [
   {
     id: "rep-10",
     timestamp: "2026-06-09 09:12",
-    operator: "Doni Banunaek",
+    operator: "BAHRUN KEI ALFAZARI, ST",
     alsintan: "Mesin Pompa Air 3 Inch",
     kecamatan: "Batu Putih",
     desa: "Oebobo",
