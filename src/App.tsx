@@ -22,8 +22,8 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Force flush if it contains the old dummy data operator names
-        if (parsed.length > 0 && parsed.some((r: any) => ["BAHRUN KEI ALFAZARI, ST", "YARIT H. PUNUF, ST", "YUFEN TAKESAN", "Marthen Selan", "Yosep Nome", "Doni Banunaek"].includes(r.operator))) {
+        // Force flush if it contains any old dummy data (identified by IDs like rep-1)
+        if (parsed.length > 0 && parsed.some((r: any) => r.id && r.id.toString().startsWith("rep-"))) {
           console.log("Ditemukan data dummy versi lama. Membersihkan cache...");
           return initialReports;
         }
@@ -99,6 +99,8 @@ export default function App() {
       localStorage.removeItem("tts_alsintan_ai_cache");
     }
   }, [aiResult]);
+
+
 
   // Helper to generate TTS regional local time (GMT+8)
   const getTTSLocalTime = () => {
@@ -311,6 +313,14 @@ export default function App() {
       setIsFetchingExternal(false);
     }
   };
+
+  // Auto-fetch data on initial mount
+  useEffect(() => {
+    // We only fetch on initial mount. We ignore the dependency array warning 
+    // to prevent fetching on every keystroke of the settings input.
+    handleFetchExternalData(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const parseExternalData = (incoming: any): AlsintanReportRow[] => {
     let rawList: any[] = [];
