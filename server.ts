@@ -100,10 +100,10 @@ app.get("/api/health", (req, res) => {
 app.get("/api/fetch-external-data", async (req, res) => {
   try {
     const sheetId = typeof req.query.sheetId === "string" ? req.query.sheetId.trim() : "";
-    const activeSheetId = sheetId || "1nrvmGZy63mufsRJJJvXtr_Q5VnOkSs1vgIrV7lLk2Tw";
+    const activeSheetId = sheetId || "15uUmtI5CDwUw6FpvPyshOR2v9zoDXDxp-3a_D5al7C4";
     
     const clientMacroUrl = typeof req.query.macroUrl === "string" ? req.query.macroUrl.trim() : "";
-    const activeMacroUrl = clientMacroUrl || "https://script.google.com/macros/s/AKfycbyKpibLPuY9jwZAJjbDkVSyIt-_JZq2H6bPJSfdVA5GiEAqNdXcYiUk7517qgGtBkFpSw/exec";
+    const activeMacroUrl = clientMacroUrl || "https://script.google.com/macros/s/AKfycbyhhqEziXcF-OV_d6VXe9rhNT7yqvWo6brR4a43Yolnb8tlUWe7W22c4DXI8s5WtJaC/exec";
 
     console.log(`Mencoba mengambil data dari Google Apps Script: ${activeMacroUrl}`);
     
@@ -147,8 +147,8 @@ app.get("/api/fetch-external-data", async (req, res) => {
 
     // FALLBACK: Fetch from the Google Spreadsheet as CSV, parsing it in real-time
     // Kita coba panggil format export alternatif dulu, lalu format gviz sebagai cadangan
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${activeSheetId}/export?format=csv`;
-    const gvizUrl = `https://docs.google.com/spreadsheets/d/${activeSheetId}/gviz/tq?tqx=out:csv`;
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${activeSheetId}/export?format=csv&gid=1391367572`;
+    const gvizUrl = `https://docs.google.com/spreadsheets/d/${activeSheetId}/gviz/tq?tqx=out:csv&gid=1391367572`;
     
     let response: any = null;
     let fetchError: any = null;
@@ -179,6 +179,15 @@ app.get("/api/fetch-external-data", async (req, res) => {
     }
 
     const csvText = await response.text();
+    
+    // Safety check: if the text starts with HTML, it means the sheet is private and returned a Google login page
+    if (csvText.trim().toLowerCase().startsWith("<!doctype html") || csvText.trim().toLowerCase().startsWith("<html")) {
+      return res.status(200).json({
+        success: false,
+        error: "Google Sheets memerlukan akses Publik (Akses Ditolak).",
+        details: `Google Sheet dengan ID ${activeSheetId} terkunci. Pastikan pengaturan berbaginya diset ke 'Siapa saja dengan link' (Anyone with link).`
+      });
+    }
     
     // Parse CSV Text with support for quoted cellular bounds containing commas
     const rows: string[][] = [];
@@ -226,25 +235,39 @@ app.get("/api/fetch-external-data", async (req, res) => {
       return res.json({ success: true, isJson: true, data: [] });
     }
 
+    const headers = rows[0].map(h => String(h).trim().toLowerCase());
     const dataRows = rows.slice(1);
+
+    const findIndexByHeader = (aliases: string[]): number => {
+      return headers.findIndex((h) => aliases.some((alias) => h.includes(alias)));
+    };
+
+    const timeIdx = findIndexByHeader(["timestamp", "tanggal", "waktu"]);
+    const opIdx = findIndexByHeader(["operator", "nama", "petugas"]);
+    const alsIdx = findIndexByHeader(["alsintan", "alat", "mesin"]);
+    const locIdx = findIndexByHeader(["kecamatan", "lokasi", "desa"]);
+    const luasIdx = findIndexByHeader(["luas", "hektar", "lahan"]);
+    const komIdx = findIndexByHeader(["komoditas", "tanaman", "kelompok"]);
+    const bbmIdx = findIndexByHeader(["bbm", "bensin", "solar", "bahan bakar"]);
+    const dok1Idx = findIndexByHeader(["dokumentasi kegiatan"]);
+    const dok2Idx = findIndexByHeader(["dokumen pendukung"]);
 
     // Map rows cleanly to AlsintanReportRow structures
     const parsedData = dataRows.map((rowArr, index) => {
-      // Structure: ["Timestamp", "Nama Operator", "Jenis Alsintan", "Nama Penyewa", "Luas Lahan (Ha)", "Jumlah Bahan Bakar (L)", "Lokasi", "Durasi Kerja (Hari)", "Tanggal Kegiatan", "Dokumentasi Pendukung (Foto)", "Keterangan (Kendala di lapangan)", "Biaya Sewa (Rp)"]
-      const rawTimestamp = rowArr[0] || "";
-      const rawOperator = rowArr[1] || "Operator Umum";
-      const rawAlsintan = rowArr[2] || "Yanmar TR2";
-      const farmer = rowArr[3] || "";
-      const rawLuas = rowArr[4] || "";
-      const rawBBM = rowArr[5] || "";
-      const lokasi = rowArr[6] || "Amanuban Selatan";
-      const durasi = rowArr[7] || "";
-      const usageDate = rowArr[8] || "";
-      const dokumentasiKegiatan = rowArr[9] || "";
-      const keterangan = rowArr[10] || "";
-      const biayaSewa = rowArr[11] || "";
-      
-      const dokumenPendukung = keterangan;
+      const getVal = (colIdx: number, fallback: string) => {
+        if (colIdx >= 0 && rowArr[colIdx]) return rowArr[colIdx];
+        return fallback;
+      };
+
+      const rawTimestamp = getVal(timeIdx, "");
+      const rawOperator = getVal(opIdx, "Operator Umum");
+      const rawAlsintan = getVal(alsIdx, "Yanmar TR2");
+      const lokasi = getVal(locIdx, "Amanuban Selatan");
+      const rawLuas = getVal(luasIdx, "");
+      const komoditasStr = getVal(komIdx, "");
+      const rawBBM = getVal(bbmIdx, "");
+      const dokumentasiKegiatan = getVal(dok1Idx, "");
+      const dokumenPendukung = getVal(dok2Idx, "");
       
       // 1. Process operator name
       const operator = rawOperator.replace(/\s*\(TR4\)\s*/i, "").trim();
@@ -267,14 +290,7 @@ app.get("/api/fetch-external-data", async (req, res) => {
       // 3. Determine Luas Lahan (Hectare) with smart fallback
       let luasLahan = parseFloat(rawLuas);
       if (isNaN(luasLahan) || luasLahan <= 0) {
-        // Fallback for blank cells (like row 0) using either duration hints (e.g. 2 days ~ 2 Ha) or default 1.5 Ha
-        if (durasi.toLowerCase().includes("2") || biayaSewa.toLowerCase().includes("3")) {
-          luasLahan = 2.0;
-        } else if (durasi.toLowerCase().includes("3") || biayaSewa.toLowerCase().includes("7")) {
-          luasLahan = 5.0;
-        } else {
-          luasLahan = 1.5;
-        }
+        luasLahan = 1.5;
       }
 
       // 4. Resolve Kabupaten TTS Kecamatan
@@ -308,8 +324,8 @@ app.get("/api/fetch-external-data", async (req, res) => {
       } else if (cleanAlsintan.includes("Cultivator")) {
         komoditas = "Tomat & Cabai";
       }
-      if (farmer) {
-        komoditas += ` - ${farmer}`;
+      if (komoditasStr) {
+        komoditas = komoditasStr;
       }
 
       // 6. Resolve Fuel consumption (BBM Liter) with strict sheet priority
@@ -326,7 +342,7 @@ app.get("/api/fetch-external-data", async (req, res) => {
 
       return {
         id: `ext-${index}-${Date.now()}`,
-        timestamp: rawTimestamp || usageDate || "10/06/2026 17:00",
+        timestamp: rawTimestamp || "10/06/2026 17:00",
         operator: operator,
         alsintan: cleanAlsintan,
         kecamatan: kecamatan,
