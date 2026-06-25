@@ -23,7 +23,7 @@ export default function App() {
       try {
         const parsed = JSON.parse(saved);
         // Force flush if it contains the old dummy data operator names
-        if (parsed.length > 0 && parsed.some((r: any) => ["Marthen Selan", "Yosep Nome", "Doni Banunaek"].includes(r.operator))) {
+        if (parsed.length > 0 && parsed.some((r: any) => ["BAHRUN KEI ALFAZARI, ST", "YARIT H. PUNUF, ST", "YUFEN TAKESAN", "Marthen Selan", "Yosep Nome", "Doni Banunaek"].includes(r.operator))) {
           console.log("Ditemukan data dummy versi lama. Membersihkan cache...");
           return initialReports;
         }
